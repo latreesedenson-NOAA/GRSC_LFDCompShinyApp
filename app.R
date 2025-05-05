@@ -11,9 +11,21 @@ library(shiny)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
+library(maps)
+library(sf)
+library(rnaturalearth)
 
 #read in data
 LFD_data = read.csv("data/GRSC_Data_for_LFD.csv")
+Map_data = read.csv("data/GRSC_Data_for_Mapping.csv")
+my_sf <- st_read(file.path("data","GOMShape", "GSHHS_f_GOM.shp"))
+
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+                         returnclass = 'sf')
+
+GULF = st_crop(worldmap, xmin = -98, xmax = -81,
+               ymin = 24, ymax = 31)
+
 
 # Helper: Filter or include all
 filter_or_all <- function(data, column, value) {
@@ -108,9 +120,14 @@ ui <- fluidPage(
       # Show a plot of the generated distribution
       # Output: Histogram ----
       mainPanel(
-        plotOutput("combinedHist"),
-        br(),
         verbatimTextOutput("filterSummary"),
+        br(),
+        fluidRow(
+          column(6, plotOutput("map1")),
+          column(6, plotOutput("map2"))
+        ),
+        br(),
+        plotOutput("combinedHist"),
         br(),
         tags$hr(),
         tags$p(
@@ -126,7 +143,7 @@ ui <- fluidPage(
 server <- function(input, output,session) {
   
   filtered_data <- eventReactive(input$update, {
-    # Group 1
+    # Group 1 LFD
     df1 <- LFD_data %>%
       filter_or_all("year", input$year1) %>%
       filter_or_all("Region", input$Region1) %>%
@@ -137,7 +154,7 @@ server <- function(input, output,session) {
       filter_or_all("DepthZone", input$Depth1) %>%
       mutate(group = "Filter 1")
     
-    # Group 2
+    # Group 2 LFD
     df2 <- LFD_data %>%
       filter_or_all("year", input$year2) %>%
       filter_or_all("Region", input$Region2) %>%
@@ -148,7 +165,30 @@ server <- function(input, output,session) {
       filter_or_all("DepthZone", input$Depth2) %>%
       mutate(group = "Filter 2")
     
-    list(combined = bind_rows(df1, df2), df1 = df1, df2 = df2)
+    # Group 1 Map
+    mf1 <- Map_data %>%
+      filter_or_all("year", input$year1) %>%
+      filter_or_all("Region", input$Region1) %>%
+      filter_or_all("Gear", input$Gear1) %>%
+      filter_or_all("SID", input$SID1) %>%
+      filter_or_all("HabitatType", input$Habitat1) %>%
+      filter_or_all("DataSource", input$Source1) %>%
+      filter_or_all("DepthZone", input$Depth1) %>%
+      mutate(group = "Filter 1")
+    
+    # Group 2 Map
+    mf2 <- Map_data %>%
+      filter_or_all("year", input$year2) %>%
+      filter_or_all("Region", input$Region2) %>%
+      filter_or_all("Gear", input$Gear2) %>%
+      filter_or_all("SID", input$SID2) %>%
+      filter_or_all("HabitatType", input$Habitat2) %>%
+      filter_or_all("DataSource", input$Source2) %>%
+      filter_or_all("DepthZone", input$Depth2) %>%
+      mutate(group = "Filter 2")
+    
+    
+    list(combined = bind_rows(df1, df2), df1 = df1, df2 = df2,mf1=mf1,mf2 =mf2)
   })
   
   output$combinedHist <- renderPlot({
@@ -173,7 +213,8 @@ server <- function(input, output,session) {
       "  Year = ", input$year1, ", SID = ", input$SID1,", State = ", input$Region1,
       ", Gear = ", input$Gear1,", Habitat = ", input$Habitat1,", Depth zone = ", input$Depth1,
       ", Data Source = ", input$Source1, "\n",
-      "  Count = ", nrow(df1), ", Mean FL(cm) = ", round(mean(df1$FL_cm), 2)
+      "  Count = ", nrow(df1), ", Mean FL(cm) = ", round(mean(df1$FL_cm), 2),
+      ", Median = ",round(median(df1$FL_cm),2), ", SD = ",round(sd(df1$FL_cm),2)
     )
 
     f2 <- paste0(
@@ -181,12 +222,33 @@ server <- function(input, output,session) {
       "  Year = ", input$year2, ", SID = ", input$SID2,", State = ", input$Region2,
       ", Gear = ", input$Gear2,", Habitat = ", input$Habitat2,", Depth zone = ", input$Depth2,
       ", Data Source = ", input$Source2, "\n",
-      "  Count = ", nrow(df2), ", Mean FL(cm) = ", round(mean(df2$FL_cm), 2)
+      "  Count = ", nrow(df2), ", Mean FL(cm) = ", round(mean(df2$FL_cm), 2),
+      ", Median = ",round(median(df2$FL_cm),2), ", SD = ",round(sd(df2$FL_cm),2)
     )
 
     paste(f1, "\n\n", f2)
   })
  
+  output$map1<-renderPlot({
+    req(input$update)
+    data <- filtered_data()
+    mf1 <- data$mf1
+   
+    ggplot() + geom_sf(data = GULF) + theme_bw()+
+      geom_point(data=mf1, aes(x=Longitude, y=Latitude,col = HabitatType))+
+      ggtitle("Group 1")
+  })
+  
+  
+  output$map2<-renderPlot({
+    req(input$update)
+    data <- filtered_data()
+    mf2 <- data$mf2
+    
+    ggplot() + geom_sf(data = GULF) + theme_bw()+
+      geom_point(data=mf2, aes(x=Longitude, y=Latitude,col = HabitatType))+
+    ggtitle("Group 2") 
+  })
 }
 
 # Run the application 
