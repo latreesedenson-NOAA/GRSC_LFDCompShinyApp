@@ -12,19 +12,20 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(maps)
-library(sf)
-library(rnaturalearth)
+
 
 #read in data
 LFD_data = read.csv("data/GRSC_Data_for_LFD.csv")
 Map_data = read.csv("data/GRSC_Data_for_Mapping.csv")
-my_sf <- st_read(file.path("data","GOMShape", "GSHHS_f_GOM.shp"))
+# my_sf <- st_read(file.path("data","GOMShape", "GSHHS_f_GOM.shp"))
 
-worldmap <- ne_countries(scale = 'medium', type = 'map_units',
-                         returnclass = 'sf')
+# worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+#                          returnclass = 'sf')
+# 
+# GULF = st_crop(worldmap, xmin = -98, xmax = -81,
+#                ymin = 24, ymax = 31)
 
-GULF = st_crop(worldmap, xmin = -98, xmax = -81,
-               ymin = 24, ymax = 31)
+gulf_bbox <- list(lon = c(-98, -81), lat = c(24, 31))
 
 
 # Helper: Filter or include all
@@ -234,9 +235,16 @@ server <- function(input, output,session) {
     data <- filtered_data()
     mf1 <- data$mf1
    
-    ggplot() + geom_sf(data = GULF) + theme_bw()+
+    ggplot() +
+      borders("world", xlim = gulf_bbox$lon, ylim = gulf_bbox$lat, fill = "gray90", color = "gray50") +
       geom_point(data=mf1, aes(x=Longitude, y=Latitude,col = HabitatType))+
+      coord_fixed(1.3,xlim = gulf_bbox$lon, ylim = gulf_bbox$lat)+
+      theme_bw()+
       ggtitle("Group 1")
+    
+    # ggplot() + geom_sf(data = GULF) + theme_bw()+
+    #   geom_point(data=mf1, aes(x=Longitude, y=Latitude,col = HabitatType))+
+    #   ggtitle("Group 1")
   })
   
   
@@ -245,9 +253,16 @@ server <- function(input, output,session) {
     data <- filtered_data()
     mf2 <- data$mf2
     
-    ggplot() + geom_sf(data = GULF) + theme_bw()+
+    ggplot() +
+      borders("world", xlim = gulf_bbox$lon, ylim = gulf_bbox$lat, fill = "gray90", color = "gray50") +
       geom_point(data=mf2, aes(x=Longitude, y=Latitude,col = HabitatType))+
-    ggtitle("Group 2") 
+      coord_fixed(1.3,xlim = gulf_bbox$lon, ylim = gulf_bbox$lat)+
+      theme_bw()+
+      ggtitle("Group 2")
+    
+    # ggplot() + geom_sf(data = GULF) + theme_bw()+
+    #   geom_point(data=mf2, aes(x=Longitude, y=Latitude,col = HabitatType))+
+    # ggtitle("Group 2") 
   })
 }
 
