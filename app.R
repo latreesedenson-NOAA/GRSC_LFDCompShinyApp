@@ -38,104 +38,111 @@ ui <- fluidPage(
   
   # Application title
   headerPanel("Red Snapper Count LFD Comparison"),
+  wellPanel(
+    h4("Instructions:"),
+    p("Use the filters below to select two specific subsets of length data from the Red Snapper Count Study."),
+    p("Filter values update dynamically to reflect compatible options."),
+    p("The histogram compares the length frequency distributions  each filtered group."),
+    p("The maps show spatial distributions of each filtered group.")
+  ),
   
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
     sidebarPanel(
       tags$div(style = "font-size:85%;",
-      h4("Filter Group 1"),
-      selectInput(inputId = "year1",
-                  label = "Year of sampeling",
-                  choices = c("All", sort(unique(LFD_data$year))), 
-                  selected = "All"),
-      
-      selectInput(inputId = "Region1",
-                  label = "State of sampeling",
-                  choices =  c("All", sort(unique(LFD_data$Region))),
-                  selected = "All"),
-      
-      selectInput(inputId = "Gear1",
-                  label = "Sampeling Gear",
-                  choices =  c("All", sort(unique(LFD_data$Gear))),
-                  selected = "All"),
-      
-      selectInput(inputId = "Habitat1",
-                  label = "Sampeling Habitat",
-                  choices =  c("All", sort(unique(LFD_data$HabitatType))),
-                  selected = "All"),
-      
-      selectInput(inputId = "SID1",
-                  label = "Stock ID Region",
-                  choices =  c("All", sort(unique(LFD_data$SID))),
-                  selected = "All"),
-      
-      selectInput(inputId = "Source1",
-                  label = "Data Source",
-                  choices =  c("All", sort(unique(LFD_data$DataSource))),
-                  selected = "All"),
-      
-      selectInput(inputId = "Depth1",
-                  label = "Depth Zone of Sampeling",
-                  choices =  c("All", sort(unique(LFD_data$DepthZone))),
-                  selected = "All"),
-      
-      h4("Filter Group 2"),
-      selectInput(inputId = "year2",
-                  label = "Year of sampeling",
-                  choices = c("All", sort(unique(LFD_data$year))), 
-                  selected = "All"),
-      
-      selectInput(inputId = "Region2",
-                  label = "State of sampeling",
-                  choices =  c("All", sort(unique(LFD_data$Region))),
-                  selected = "All"),
-      
-      selectInput(inputId = "Gear2",
-                  label = "Sampeling Gear",
-                  choices =  c("All", sort(unique(LFD_data$Gear))),
-                  selected = "All"),
-      
-      selectInput(inputId = "Habitat2",
-                  label = "Sampeling Habitat",
-                  choices =  c("All", sort(unique(LFD_data$HabitatType))),
-                  selected = "All"),
-      
-      selectInput(inputId = "SID2",
-                  label = "Stock ID Region",
-                  choices =  c("All", sort(unique(LFD_data$SID))),
-                  selected = "All"),
-      
-      selectInput(inputId = "Source2",
-                  label = "Data Source",
-                  choices =  c("All", sort(unique(LFD_data$DataSource))),
-                  selected = "All"),
-      
-      selectInput(inputId = "Depth2",
-                  label = "Depth Zone of Sampeling",
-                  choices =  c("All", sort(unique(LFD_data$DepthZone))),
-                  selected = "All"),
-      
-      actionButton("update", "Update Plot")
+               h4("Filter Group 1"),
+               selectInput(inputId = "year1",
+                           label = "Year of sampling",
+                           choices = c("All", sort(unique(LFD_data$year))), 
+                           selected = "All"),
+               
+               selectInput(inputId = "Region1",
+                           label = "State of sampling",
+                           choices =  c("All", sort(unique(LFD_data$Region))),
+                           selected = "All"),
+               
+               selectInput(inputId = "Gear1",
+                           label = "Sampling Gear",
+                           choices =  c("All", sort(unique(LFD_data$Gear))),
+                           selected = "All"),
+               
+               selectInput(inputId = "Habitat1",
+                           label = "Sampling Habitat",
+                           choices =  c("All", sort(unique(LFD_data$HabitatType))),
+                           selected = "All"),
+               
+               selectInput(inputId = "SID1",
+                           label = "Stock ID Region",
+                           choices =  c("All", sort(unique(LFD_data$SID))),
+                           selected = "All"),
+               
+               selectInput(inputId = "Source1",
+                           label = "Data Source",
+                           choices =  c("All", sort(unique(LFD_data$DataSource))),
+                           selected = "All"),
+               
+               selectInput(inputId = "Depth1",
+                           label = "Depth Zone of Sampling",
+                           choices =  c("All", sort(unique(LFD_data$DepthZone))),
+                           selected = "All"),
+               
+               h4("Filter Group 2"),
+               selectInput(inputId = "year2",
+                           label = "Year of sampling",
+                           choices = c("All", sort(unique(LFD_data$year))), 
+                           selected = "All"),
+               
+               selectInput(inputId = "Region2",
+                           label = "State of sampling",
+                           choices =  c("All", sort(unique(LFD_data$Region))),
+                           selected = "All"),
+               
+               selectInput(inputId = "Gear2",
+                           label = "Sampling Gear",
+                           choices =  c("All", sort(unique(LFD_data$Gear))),
+                           selected = "All"),
+               
+               selectInput(inputId = "Habitat2",
+                           label = "Sampling Habitat",
+                           choices =  c("All", sort(unique(LFD_data$HabitatType))),
+                           selected = "All"),
+               
+               selectInput(inputId = "SID2",
+                           label = "Stock ID Region",
+                           choices =  c("All", sort(unique(LFD_data$SID))),
+                           selected = "All"),
+               
+               selectInput(inputId = "Source2",
+                           label = "Data Source",
+                           choices =  c("All", sort(unique(LFD_data$DataSource))),
+                           selected = "All"),
+               
+               selectInput(inputId = "Depth2",
+                           label = "Depth Zone of Sampling",
+                           choices =  c("All", sort(unique(LFD_data$DepthZone))),
+                           selected = "All"),
+               
+               actionButton("update", "Update Plots")
       )),
-                  
-      # Show a plot of the generated distribution
-      # Output: Histogram ----
-      mainPanel(
-        verbatimTextOutput("filterSummary"),
-        br(),
-        fluidRow(
-          column(6, plotOutput("map1")),
-          column(6, plotOutput("map2"))
-        ),
-        br(),
-        plotOutput("combinedHist"),
-        br(),
-        tags$hr(),
-        tags$p(
-          "Created by LaTreese Denson", format(Sys.Date(),"%Y"),
-          style = "font-size: 80%; color: #888888; text-aligh: center;"
-        )
+    
+    # Show a plot of the generated distribution
+    # Output: Histogram ----
+    mainPanel(
+      verbatimTextOutput("filterSummary"),
+      br(),
+      fluidRow(
+        column(6, plotOutput("map1")),
+        column(6, plotOutput("map2"))
+      ),
+      br(),
+      plotOutput("combinedHist"),
+      br(),
+      tags$hr(),
+      tags$p(
+        "Created by LaTreese Denson", format(Sys.Date(),"%Y"),
+        style = "font-size: 80%; color: #888888; text-aligh: center;"
       )
+    )
   )
 )
 
